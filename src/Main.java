@@ -43,6 +43,7 @@ public class Main {
 					System.err.println("Digite um número!");
 					break;
 				default:
+					clearScreen();
 					break;
 				}
 			} catch (IllegalArgumentException e) {
@@ -58,11 +59,11 @@ public class Main {
 		StringBuilder menu = new StringBuilder();
 		menu.append("\nÓ Fatecanuz proveis para aos sofí que conheceis os Acanos Komputarios.");
 		menu.append("\nGita ó Fatecanuz ou pedeceis na FORCA!");
-		menu.append("\n|------------------------|");
-		menu.append("\n| 1 - Arcano de 3 letras |");
-		menu.append("\n| 2 - Arcano de 4 letras |");
-		menu.append("\n| 3 - Arcano de 5 letras |");
-		menu.append("\n|------------------------|");
+
+		menu.append("\n");
+		menu.append("\n 1 - Léxi de 3 grámatas");
+		menu.append("\n 2 - Léxi de 4 grámatas");
+		menu.append("\n 3 - Léxi de 5 grámatas");
 
 		System.out.println(menu.toString());
 	}
@@ -100,6 +101,7 @@ public class Main {
 		text.append("\n|");
 		text.append("\n|");
 
+		word.hitAll();
 		for (int i = 0; i < word.getSize(); i++)
 			if (word.wasHit(i))
 				text.append(" ").append(word.getLetter(i));
@@ -109,8 +111,10 @@ public class Main {
 
 		// Victory message
 		text = new StringBuilder();
+		text.append("\n");
 		text.append("Tua carne alimenta os urubus ó escória de ZeLus!\nGlória a ").append(godName()).append("!");
 		System.err.println(text.toString());
+		// Hold Term
 		inputInt("Press Enter.");
 		clearScreen();
 	}
@@ -134,8 +138,14 @@ public class Main {
 
 		// Victory message
 		text = new StringBuilder();
+
+		text.append("\n");
 		text.append("Provastes tua inocencia perante ").append(godName()).append("!\nOrgulhate ó Fatekanuz!");
 		System.err.println(text.toString());
+
+		// Hold Term
+		inputInt("Press Enter.");
+		clearScreen();
 
 	}
 
