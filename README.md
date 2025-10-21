@@ -2,7 +2,7 @@
 
 ## 📋 Sobre o Projeto
 
-**Roman Gallows** é um jogo educativo da forca desenvolvido para o Evento FATEC Portas Abertas da FATEC Zona Leste. O jogo combina diversão e aprendizado com uma temática romana, desafiando os jogadores a adivinharem palavras relacionadas à cultura, mitologia e história da Roma Antiga.
+**Roman Gallows** é um jogo educativo da forca desenvolvido para o Evento FATEC Portas Abertas da FATEC Zona Leste. O jogo combina diversão e aprendizado, desafiando os jogadores a adivinharem palavras.
 
 ### 🎯 Objetivo
 - Demonstrar conceitos de programação orientada a objetos em Java
