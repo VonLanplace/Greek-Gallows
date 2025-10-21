@@ -20,7 +20,7 @@ public class Main {
 			ReadFile readfile;
 			try {
 				printMainMenu();
-				switch (inputInt()) {
+				switch (inputInt("Option(1,2,3): ")) {
 				case 1:
 					readfile = new ReadFile("3");
 					word = new GallowWord(readfile.readWord());
@@ -93,10 +93,11 @@ public class Main {
 		// Print forca
 		StringBuilder text = new StringBuilder();
 		text.append("\n|---|");
+		text.append("\n|   o");
+		text.append("\n|  /|\\");
+		text.append("\n|  / \\");
+
 		text.append("\n|");
-		text.append("\n| /---\\-\\");
-		text.append("\n| |RIP| |");
-		text.append("\n| |   | |");
 		text.append("\n|");
 
 		for (int i = 0; i < word.getSize(); i++)
@@ -110,7 +111,8 @@ public class Main {
 		text = new StringBuilder();
 		text.append("Tua carne alimenta os urubus ó escória de ZeLus!\nGlória a ").append(godName()).append("!");
 		System.err.println(text.toString());
-
+		inputInt("Press Enter.");
+		clearScreen();
 	}
 
 	private static void printWin() {
@@ -237,24 +239,32 @@ public class Main {
 		StringBuilder text = new StringBuilder();
 		text.append("|---|");
 
-		text.append("\n|   o");
-
-		text.append("\n|  ");
-
-		if (lifes > 1)
-			text.append("/|");
-		else if (lifes > 0)
-			text.append(" |");
-
-		if (lifes > 2)
-			text.append("\\");
-
-		text.append("\n|  ");
-
-		if (lifes > 3)
-			text.append("/ ");
-		if (lifes > 4)
-			text.append("\\");
+		System.err.println(lifes);
+		switch (lifes) {
+		case 5:
+			text.append("\n| \n| \n|");
+			break;
+		case 4:
+			text.append("\n|   o\n|\n|");
+			break;
+		case 3:
+			text.append("\n|   o\n|   |\n|");
+			break;
+		case 2:
+			text.append("\n|   o\n|  /|\n|");
+			break;
+		case 1:
+			text.append("\n|   o\n|  /|\\\n|");
+			break;
+		case 0:
+			text.append("\n|   o\n|  /|\\\n|  /");
+			break;
+		case -1:
+			text.append("\n|   o\n|  /|\\\n|  / \\");
+			break;
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + lifes);
+		}
 
 		text.append("\n|");
 		text.append("\n|");
@@ -272,10 +282,9 @@ public class Main {
 		System.err.println(text.toString());
 	}
 
-	public static int inputInt() {
-		// TODO
+	public static int inputInt(String message) {
 		String input;
-		System.out.print("Option(1,2,3): ");
+		System.out.print(message);
 		Scanner in = new Scanner(System.in);
 
 		try {
