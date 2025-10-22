@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,19 +21,12 @@ public class Main {
 			ReadFile readfile;
 			try {
 				printMainMenu();
-				switch (inputInt("Option(1,2,3): ")) {
+				int opc = inputInt("Option(1,2,3): ");
+				switch (opc) {
 				case 1:
-					readfile = new ReadFile("3");
-					word = new GallowWord(readfile.readWord());
-					mainGame();
-					break;
 				case 2:
-					readfile = new ReadFile("4");
-					word = new GallowWord(readfile.readWord());
-					mainGame();
-					break;
 				case 3:
-					readfile = new ReadFile("5");
+					readfile = new ReadFile(Integer.toString(opc + 2));
 					word = new GallowWord(readfile.readWord());
 					mainGame();
 					break;
@@ -40,6 +34,7 @@ public class Main {
 					loop = false;
 					break;
 				case -1:
+					clearScreen();
 					System.err.println("Digite um número!");
 					break;
 				default:
@@ -61,9 +56,11 @@ public class Main {
 		menu.append("\nGita ó Fatecanuz ou pedeceis na FORCA!");
 
 		menu.append("\n");
-		menu.append("\n 1 - Léxi de 3 grámatas");
-		menu.append("\n 2 - Léxi de 4 grámatas");
-		menu.append("\n 3 - Léxi de 5 grámatas");
+		// Léxi = Palavras
+		// grámatas = letras
+		menu.append("\n 1 - Léxi de grámatas leves");
+		menu.append("\n 2 - Léxi de grámatas medianas");
+		menu.append("\n 3 - Léxi de grámatas pesadas");
 
 		System.out.println(menu.toString());
 	}
@@ -182,6 +179,7 @@ public class Main {
 
 	private static int guessForca() {
 		String guess;
+		System.out.println();
 		System.out.print("Guess: ");
 		Scanner in = new Scanner(System.in);
 
@@ -202,6 +200,9 @@ public class Main {
 			return guessWord(guess, word);
 		} else {
 			char letter = guess.charAt(0);
+
+			if (guessList.contains(letter))
+				return 0;
 			guessList.add(letter);
 			return guessChar(letter, word);
 		}
@@ -247,9 +248,9 @@ public class Main {
 
 		// Print forca
 		StringBuilder text = new StringBuilder();
-		text.append("|---|");
+		text.append("| ").append(lifes).append(" | ").append(word.getHint());
+		text.append("\n|---|");
 
-		System.err.println(lifes);
 		switch (lifes) {
 		case 5:
 			text.append("\n| \n| \n|");
@@ -294,6 +295,7 @@ public class Main {
 
 	public static int inputInt(String message) {
 		String input;
+		System.out.println();
 		System.out.print(message);
 		Scanner in = new Scanner(System.in);
 
@@ -326,22 +328,23 @@ public class Main {
 				System.out.print("\033[H\033[2J");
 				System.out.flush();
 
-				// Alternative for Unix-like systems
-				// Runtime.getRuntime().exec("clear");
 			}
 		} catch (final Exception e) {
-			// Fallback: print multiple newlines
 			System.out.println("\n".repeat(50));
 		}
 	}
 }
 
 class GallowWord {
+	private String hint;
 	private char[] letters;
 	private boolean[] wasHit;
 	private int length;
 
-	public GallowWord(String word) throws IllegalArgumentException {
+	public GallowWord(String[] inString) throws IllegalArgumentException {
+		String word = inString[0];
+		this.hint = inString[1];
+
 		if (word == null)
 			throw new IllegalArgumentException("No word Found");
 
@@ -375,6 +378,14 @@ class GallowWord {
 			this.wasHit[i] = true;
 	}
 
+	public String getHint() {
+		return hint;
+	}
+
+	public void setHint(String hint) {
+		this.hint = hint;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder word = new StringBuilder();
@@ -398,7 +409,10 @@ class ReadFile {
 		fileSize();
 	}
 
-	public String readWord() throws FileNotFoundException, IOException {
+	public String[] readWord() throws FileNotFoundException, IOException {
+		if (!checkFile(filePath)) {
+			return new String[] { "abc", "ERRO DIGITE: abc" };
+		}
 		try (FileReader file = new FileReader(filePath)) {
 			BufferedReader reader = new BufferedReader(file);
 			int lineNumber = (int) (Math.random() * (lineCount) + 1);
@@ -408,7 +422,15 @@ class ReadFile {
 				outString = reader.readLine();
 			}
 
-			return outString;
+			String[] outVec = outString.split(",");
+
+			if (outVec.length == 1)
+				outVec = new String[] { outVec[0], "No Hint" };
+
+			for (String word : outVec)
+				word.trim();
+
+			return outVec;
 		} catch (Exception e) {
 			throw e;
 		}
@@ -419,6 +441,30 @@ class ReadFile {
 			this.lineCount = Files.lines(Paths.get(this.filePath)).count();
 		} catch (IOException e) {
 			throw e;
+		}
+	}
+
+	public static boolean checkFile(String filePath) {
+		try {
+			if (!filePath.toLowerCase().endsWith(".txt")) {
+				filePath += ".txt";
+			}
+
+			File file = new File(filePath);
+
+			if (file.exists()) {
+				return true;
+			}
+
+			boolean created = file.createNewFile();
+			return created;
+
+		} catch (IOException e) {
+			System.err.println("Erro ao criar arquivo: " + e.getMessage());
+			return false;
+		} catch (SecurityException e) {
+			System.err.println("Erro de segurança: " + e.getMessage());
+			return false;
 		}
 	}
 }
