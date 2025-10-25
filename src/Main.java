@@ -1,3 +1,4 @@
+import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,9 +13,11 @@ public class Main {
 	public static void main(String[] args) {
 		boolean loop = true;
 		View view = new View();
+		view.clearScreen();
 		Scanner terIn = new Scanner(System.in);
 		while (loop) {
 			try {
+
 				// Main Menu printer
 				view.printMainMenu();
 
@@ -27,11 +30,14 @@ public class Main {
 				case 1:
 				case 2:
 				case 3:
-
 					view.mainGame(terIn, opc);
 					break;
 				case 4:
 					view.mainGame(terIn, opc);
+					break;
+				case 69:
+					Secret secret = new Secret();
+					secret.playSecret(69, terIn);
 					break;
 				case 9:
 					loop = false;
@@ -44,7 +50,7 @@ public class Main {
 					view.clearScreen();
 					break;
 				}
-
+				view.clearScreen();
 			} catch (NumberFormatException e) {
 				view.clearScreen();
 				System.err.println("Insira um numero Inteiro!");
@@ -74,7 +80,7 @@ class View {
 
 	public void printMainMenu() {
 		StringBuilder menu = new StringBuilder();
-		menu.append("\nÓ Fatecanuz proveis para aos sofí que conheceis os Acanos Komputarios.");
+		menu.append("\nÓ Fatecanuz proveis para aos sofí que conheceis os Argumentos.");
 		menu.append("\nGita ó Fatecanuz ou pedeceis na FORCA!");
 
 		menu.append("\n");
@@ -83,7 +89,8 @@ class View {
 		menu.append("\n 1 - Léxi de grámatas leves");
 		menu.append("\n 2 - Léxi de grámatas medianas");
 		menu.append("\n 3 - Léxi de grámatas pesadas");
-		menu.append("\n 4 - Léxi de qualquer tamanho");
+		menu.append("\n 4 - Léxi de grámatas qualquer");
+		// menu.append("\n 9 - Abandonas este desafio");
 
 		System.out.println(menu.toString());
 		System.out.print("\nOpcoes: ");
@@ -533,4 +540,46 @@ class EmptyFileException extends Exception {
 	public EmptyFileException(String message, Throwable cause) {
 		super(message, cause);
 	}
+}
+
+class Secret {
+	public Secret() {
+		super();
+	}
+
+	public void playSecret(int i, Scanner terIn) {
+		switch (i) {
+		case 69:
+			usaDesktop("69.mp4", terIn);
+			break;
+		default:
+			break;
+		}
+	}
+
+	public void usaDesktop(String filename, Scanner terIn) {
+		String newDir = System.getProperty("user.dir");
+		File diretorio = new File(newDir);
+		if (!diretorio.exists())
+			return;
+
+		File arquivo = new File(diretorio, filename);
+		if (!arquivo.exists())
+			return;
+
+		Desktop desktop = Desktop.getDesktop();
+
+		if (desktop.isSupported(Desktop.Action.OPEN)) {
+			try {
+				desktop.open(arquivo);
+
+			} catch (IOException e) {
+				System.err.println(e.getLocalizedMessage());
+			}
+			System.out.println("Loading Please Wait");
+			System.out.print("Press Enter to Continue");
+			terIn.nextLine();
+		}
+	}
+
 }
