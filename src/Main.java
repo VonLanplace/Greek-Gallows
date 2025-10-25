@@ -480,7 +480,7 @@ class ReadFile {
 
 	private ArrayList<String[]> readFile() throws RuntimeException, IOException, EmptyFileException {
 		// Opening directory location;
-		String filename = "Palavras.txt";
+		String filename = "Palavras.csv";
 		String newDir = System.getProperty("user.dir");
 
 		File folder = new File(newDir);
