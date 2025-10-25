@@ -14,6 +14,15 @@
 - **GitHub:** [@Vonlanplace](https://github.com/Vonlanplace)
 - **Instituição:** FATEC Zona Leste
 
+## ⚠️ AVISO - Sobre a Estrutura do Projeto
+
+Este projeto foi desenvolvido intencionalmente para estar armazenado completamente em um único arquivo .java
+
+### 🧩 Objetivo do Desafio
+
+- Exercitar a capacidade de arquitetura e design em condições específicas
+- Demonstrar que soluções elegantes podem ser criadas mesmo com restrições
+
 ## 🏗️ Estrutura do Projeto
 
 ```
