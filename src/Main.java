@@ -1,10 +1,9 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -26,13 +25,13 @@ public class Main {
 				// Main Menu cases
 				switch (opc) {
 				case 1:
-					view.mainGame(terIn, Integer.toString(opc + 2));
-					break;
 				case 2:
-					view.mainGame(terIn, Integer.toString(opc + 2));
-					break;
 				case 3:
-					view.mainGame(terIn, Integer.toString(opc + 2));
+
+					view.mainGame(terIn, opc);
+					break;
+				case 4:
+					view.mainGame(terIn, opc);
 					break;
 				case 9:
 					loop = false;
@@ -51,12 +50,16 @@ public class Main {
 				System.err.println("Insira um numero Inteiro!");
 			} catch (IllegalArgumentException e) {
 				view.clearScreen();
-				e.printStackTrace();
 				System.err.println(e.getMessage());
 			} catch (IOException e) {
 				view.clearScreen();
+				System.err.println("Arquivo " + e.getMessage() + " não Encontrado!");
+			} catch (RuntimeException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
-				System.err.println("File " + e.getMessage() + " not Found!");
+			} catch (EmptyFileException e) {
+				view.clearScreen();
+				System.err.println("Arquivo " + e.getMessage() + " está Vazia!");
 			}
 		}
 		terIn.close();
@@ -80,6 +83,7 @@ class View {
 		menu.append("\n 1 - Léxi de grámatas leves");
 		menu.append("\n 2 - Léxi de grámatas medianas");
 		menu.append("\n 3 - Léxi de grámatas pesadas");
+		menu.append("\n 4 - Léxi de qualquer tamanho");
 
 		System.out.println(menu.toString());
 		System.out.print("\nOpcoes: ");
@@ -105,15 +109,23 @@ class View {
 		return opc;
 	}
 
-	public void mainGame(Scanner termIn, String filename) throws IOException {
+	public void mainGame(Scanner termIn, int difficulty) throws IOException, RuntimeException, EmptyFileException {
 		ArrayList<Character> guessList = new ArrayList<Character>();
 		int lifes = 5;
 		GallowWord word = null;
 
 		try {
-			ReadFile readfile = new ReadFile(filename);
-			word = new GallowWord(readfile.readWord());
-		} catch (IOException e) {
+			ReadFile readfile = new ReadFile();
+			switch (difficulty) {
+			case 1:
+			case 2:
+			case 3:
+				word = new GallowWord(readfile.readWord(difficulty));
+				break;
+			default:
+				word = new GallowWord(readfile.readWord());
+			}
+		} catch (IOException | RuntimeException | EmptyFileException e) {
 			throw e;
 		}
 
@@ -247,7 +259,7 @@ class View {
 			text.append("\n|   o\n|  /|\\\n|  / \\");
 			break;
 		default:
-			throw new IllegalArgumentException("Unexpected value: " + lifes);
+			throw new IllegalArgumentException("Valor de vidas inesperado: " + lifes);
 		}
 
 		text.append("\n|");
@@ -303,7 +315,6 @@ class Controlller {
 
 	public int guessForca(Scanner termIn, ArrayList<Character> guessList, GallowWord word) {
 		String guess;
-		System.out.println();
 		System.out.print("Guess: ");
 
 		try {
@@ -431,73 +442,95 @@ class GallowWord {
 }
 
 class ReadFile {
-	private String filePath;
-	private long lineCount;
-
-	public ReadFile(String difficulty) throws IOException {
-		StringBuilder filePath = new StringBuilder("dificuldade_");
-		difficulty = difficulty.toLowerCase();
-		filePath.append(difficulty).append(".txt");
-		this.filePath = filePath.toString();
-		fileSize();
+	public ReadFile() {
+		// TODO Auto-generated constructor stub
 	}
 
-	public String[] readWord() throws FileNotFoundException, IOException {
-		if (!checkFile(filePath)) {
-			return new String[] { "abc", "ERRO DIGITE: abc" };
-		}
-		try (FileReader file = new FileReader(filePath)) {
-			BufferedReader reader = new BufferedReader(file);
-			int lineNumber = (int) (Math.random() * (lineCount) + 1);
-
-			String outString = null;
-			for (int i = 0; i < lineNumber; i++) {
-				outString = reader.readLine();
-			}
-
-			String[] outVec = outString.split(",");
-
-			if (outVec.length == 1)
-				outVec = new String[] { outVec[0], "No Hint" };
-
-			for (String word : outVec)
-				word.trim();
-
-			return outVec;
-		} catch (Exception e) {
+	public String[] readWord() throws RuntimeException, IOException, EmptyFileException {
+		ArrayList<String[]> words;
+		try {
+			words = readFile();
+		} catch (RuntimeException | IOException | EmptyFileException e) {
 			throw e;
 		}
+		return words.get((int) (Math.random() * (words.size())));
 	}
 
-	public void fileSize() throws IOException {
+	public String[] readWord(int difficulty) throws RuntimeException, IOException, EmptyFileException {
+		ArrayList<String[]> words;
 		try {
-			this.lineCount = Files.lines(Paths.get(this.filePath)).count();
+			words = readFile();
+		} catch (RuntimeException | IOException | EmptyFileException e) {
+			throw e;
+		}
+		words = getSizedWords(difficulty, words);
+		return words.get((int) (Math.random() * (words.size())));
+	}
+
+	private ArrayList<String[]> getSizedWords(int difficulty, ArrayList<String[]> words) {
+		int letterQtd = difficulty * 3;
+		ArrayList<String[]> cleanWords = new ArrayList<String[]>();
+
+		for (String[] word : words)
+			if (word[0].length() <= letterQtd && word[0].length() >= letterQtd - 3)
+				cleanWords.add(word);
+
+		return cleanWords;
+	}
+
+	private ArrayList<String[]> readFile() throws RuntimeException, IOException, EmptyFileException {
+		// Opening directory location;
+		String filename = "Palavras.txt";
+		String newDir = System.getProperty("user.dir");
+
+		File folder = new File(newDir);
+		if (!folder.exists())
+			folder.mkdir();
+		// Opening the file on Java
+		File file = new File(newDir, filename);
+
+		if (!file.exists())
+			throw new FileNotFoundException("Arquivo " + filename + " não encontrado na pasta " + newDir);
+
+		try {
+			ArrayList<String[]> list = new ArrayList<String[]>();
+			FileInputStream fileInputStream = new FileInputStream(file);
+			InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+			BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+			String line = bufferedReader.readLine();
+			line = bufferedReader.readLine();
+			while (line != null) {
+				list.add(line.split(","));
+				line = bufferedReader.readLine();
+			}
+			fileInputStream.close();
+			inputStreamReader.close();
+			bufferedReader.close();
+
+			if (list.isEmpty())
+				throw new EmptyFileException(filename);
+
+			return list;
+		} catch (FileNotFoundException e) {
+			throw e;
 		} catch (IOException e) {
 			throw e;
 		}
 	}
+}
 
-	public static boolean checkFile(String filePath) {
-		try {
-			if (!filePath.toLowerCase().endsWith(".txt")) {
-				filePath += ".txt";
-			}
+class EmptyFileException extends Exception {
+	private static final long serialVersionUID = 3374974578877562788L;
 
-			File file = new File(filePath);
+	public EmptyFileException() {
+		super();
+	}
 
-			if (file.exists()) {
-				return true;
-			}
+	public EmptyFileException(String message) {
+		super(message);
+	}
 
-			boolean created = file.createNewFile();
-			return created;
-
-		} catch (IOException e) {
-			System.err.println("Erro ao criar arquivo: " + e.getMessage());
-			return false;
-		} catch (SecurityException e) {
-			System.err.println("Erro de segurança: " + e.getMessage());
-			return false;
-		}
+	public EmptyFileException(String message, Throwable cause) {
+		super(message, cause);
 	}
 }
