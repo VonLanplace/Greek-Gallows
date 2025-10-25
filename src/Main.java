@@ -9,48 +9,67 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
-	private static ArrayList<Character> guessList;
-	private static int lifes;
-	private static GallowWord word;
 
 	public static void main(String[] args) {
 		boolean loop = true;
+		View view = new View();
+		Scanner terIn = new Scanner(System.in);
 		while (loop) {
-			guessList = new ArrayList<Character>();
-			lifes = 5;
-			ReadFile readfile;
 			try {
-				printMainMenu();
-				int opc = inputInt("Option(1,2,3): ");
+				// Main Menu printer
+				view.printMainMenu();
+
+				// Main menu input
+				String input = terIn.nextLine();
+				int opc = Integer.parseInt(input);
+
+				// Main Menu cases
 				switch (opc) {
 				case 1:
+					view.mainGame(terIn, Integer.toString(opc + 2));
+					break;
 				case 2:
+					view.mainGame(terIn, Integer.toString(opc + 2));
+					break;
 				case 3:
-					readfile = new ReadFile(Integer.toString(opc + 2));
-					word = new GallowWord(readfile.readWord());
-					mainGame();
+					view.mainGame(terIn, Integer.toString(opc + 2));
 					break;
 				case 9:
 					loop = false;
 					break;
 				case -1:
-					clearScreen();
+					view.clearScreen();
 					System.err.println("Digite um número!");
 					break;
 				default:
-					clearScreen();
+					view.clearScreen();
 					break;
 				}
+
+			} catch (NumberFormatException e) {
+				view.clearScreen();
+				System.err.println("Insira um numero Inteiro!");
 			} catch (IllegalArgumentException e) {
-				clearScreen();
-				System.err.println(e.getMessage());
-			} catch (Exception e) {
+				view.clearScreen();
 				e.printStackTrace();
+				System.err.println(e.getMessage());
+			} catch (IOException e) {
+				view.clearScreen();
+				e.printStackTrace();
+				System.err.println("File " + e.getMessage() + " not Found!");
 			}
 		}
+		terIn.close();
 	}
 
-	private static void printMainMenu() {
+}
+
+class View {
+	public View() {
+		super();
+	}
+
+	public void printMainMenu() {
 		StringBuilder menu = new StringBuilder();
 		menu.append("\nÓ Fatecanuz proveis para aos sofí que conheceis os Acanos Komputarios.");
 		menu.append("\nGita ó Fatecanuz ou pedeceis na FORCA!");
@@ -63,31 +82,62 @@ public class Main {
 		menu.append("\n 3 - Léxi de grámatas pesadas");
 
 		System.out.println(menu.toString());
+		System.out.print("\nOpcoes: ");
 	}
 
-	public static void mainGame() {
-		if (word == null)
-			throw new IllegalArgumentException("No word Found");
+	public int inputInt(Scanner termIn, String message) {
+		String input;
+		System.out.println();
+		System.out.print(message);
+		try {
+			input = termIn.nextLine();
+		} catch (Exception e) {
+			input = "";
+		}
+
+		int opc;
+		try {
+			opc = Integer.parseInt(input);
+		} catch (NumberFormatException e) {
+			opc = -1;
+		}
+
+		return opc;
+	}
+
+	public void mainGame(Scanner termIn, String filename) throws IOException {
+		ArrayList<Character> guessList = new ArrayList<Character>();
+		int lifes = 5;
+		GallowWord word = null;
+
+		try {
+			ReadFile readfile = new ReadFile(filename);
+			word = new GallowWord(readfile.readWord());
+		} catch (IOException e) {
+			throw e;
+		}
+
+		Controlller controlller = new Controlller();
 
 		boolean loop = true;
 		while (loop) {
 			clearScreen();
-			if (testWin()) {
-				printWin();
+			if (controlller.testWin(word)) {
+				printWin(termIn, word);
 				loop = false;
 			} else {
 				if (lifes >= 0) {
 					printForca(word, guessList, lifes);
-					lifes += guessForca();
+					lifes += controlller.guessForca(termIn, guessList, word);
 				} else {
-					printLose();
+					printLose(termIn, word);
 					loop = false;
 				}
 			}
 		}
 	}
 
-	private static void printLose() {
+	public void printLose(Scanner terIn, GallowWord word) {
 		// Print forca
 		StringBuilder text = new StringBuilder();
 		text.append("\n|---|");
@@ -109,14 +159,15 @@ public class Main {
 		// Victory message
 		text = new StringBuilder();
 		text.append("\n");
-		text.append("Tua carne alimenta os urubus ó escória de ZeLus!\nGlória a ").append(godName()).append("!");
+		text.append("Tua carne alimenta os urubus o escoria de ZeLus!\nGloria a ").append(godName()).append("!");
 		System.err.println(text.toString());
 		// Hold Term
-		inputInt("Press Enter.");
+		System.out.print("Press Enter!");
+		terIn.nextLine();
 		clearScreen();
 	}
 
-	private static void printWin() {
+	public void printWin(Scanner terIn, GallowWord word) {
 		// Print forca
 		StringBuilder text = new StringBuilder();
 		text.append("\n|---|");
@@ -141,12 +192,12 @@ public class Main {
 		System.err.println(text.toString());
 
 		// Hold Term
-		inputInt("Press Enter.");
+		System.out.print("Press Enter!");
+		terIn.nextLine();
 		clearScreen();
-
 	}
 
-	public static String godName() {
+	public String godName() {
 		int opc = (int) (Math.random() * 6);
 		switch (opc) {
 		case 0:
@@ -166,85 +217,7 @@ public class Main {
 		}
 	}
 
-	private static boolean testWin() {
-		int hits = 0;
-		for (int i = 0; i < word.getSize(); i++)
-			if (word.wasHit(i))
-				hits++;
-		if (hits >= word.getSize()) {
-			return true;
-		}
-		return false;
-	}
-
-	private static int guessForca() {
-		String guess;
-		System.out.println();
-		System.out.print("Guess: ");
-		Scanner in = new Scanner(System.in);
-
-		try {
-			guess = in.nextLine();
-		} catch (Exception e) {
-			in.close();
-			in = new Scanner(System.in);
-			guess = "";
-		}
-
-		guess = guess.toLowerCase();
-
-		if (guess.isEmpty())
-			return -1;
-
-		if (guess.length() > 1) {
-			return guessWord(guess, word);
-		} else {
-			char letter = guess.charAt(0);
-
-			if (guessList.contains(letter))
-				return 0;
-			guessList.add(letter);
-			return guessChar(letter, word);
-		}
-	}
-
-	private static int guessWord(String guess, GallowWord word) {
-		char[] letters = guess.toCharArray();
-		int wordSize = word.getSize();
-
-		int hits = 0;
-		if (letters.length == wordSize) {
-			for (int i = 0; i < wordSize; i++) {
-				if (letters[i] == word.getLetter(i))
-					hits++;
-			}
-		}
-
-		if (hits >= wordSize) {
-			word.hitAll();
-			return 0;
-		}
-
-		return -1;
-	}
-
-	private static int guessChar(char guess, GallowWord word) {
-		boolean hit = false;
-
-		for (int i = 0; i < word.getSize(); i++) {
-			if (Character.compare(guess, word.getLetter(i)) == 0) {
-				word.hit(i);
-				hit = true;
-			}
-		}
-
-		if (hit)
-			return 0;
-		else
-			return -1;
-	}
-
-	private static void printForca(GallowWord word, ArrayList<Character> guessList, int lifes) {
+	private void printForca(GallowWord word, ArrayList<Character> guessList, int lifes) {
 
 		// Print forca
 		StringBuilder text = new StringBuilder();
@@ -293,31 +266,7 @@ public class Main {
 		System.err.println(text.toString());
 	}
 
-	public static int inputInt(String message) {
-		String input;
-		System.out.println();
-		System.out.print(message);
-		Scanner in = new Scanner(System.in);
-
-		try {
-			input = in.nextLine();
-		} catch (Exception e) {
-			in.close();
-			in = new Scanner(System.in);
-			input = "";
-		}
-
-		int opc;
-		try {
-			opc = Integer.parseInt(input);
-		} catch (NumberFormatException e) {
-			opc = -1;
-		}
-
-		return opc;
-	}
-
-	public static void clearScreen() {
+	public void clearScreen() {
 		try {
 			final String os = System.getProperty("os.name").toLowerCase();
 
@@ -333,6 +282,90 @@ public class Main {
 			System.out.println("\n".repeat(50));
 		}
 	}
+
+}
+
+class Controlller {
+	public Controlller() {
+		super();
+	}
+
+	public boolean testWin(GallowWord word) {
+		int hits = 0;
+		for (int i = 0; i < word.getSize(); i++)
+			if (word.wasHit(i))
+				hits++;
+		if (hits >= word.getSize()) {
+			return true;
+		}
+		return false;
+	}
+
+	public int guessForca(Scanner termIn, ArrayList<Character> guessList, GallowWord word) {
+		String guess;
+		System.out.println();
+		System.out.print("Guess: ");
+
+		try {
+			guess = termIn.nextLine();
+		} catch (Exception e) {
+			termIn = new Scanner(System.in);
+			guess = "";
+		}
+
+		guess = guess.toLowerCase();
+
+		if (guess.isEmpty())
+			return -1;
+
+		if (guess.length() > 1) {
+			return guessWord(guess, word);
+		} else {
+			char letter = guess.charAt(0);
+
+			if (guessList.contains(letter))
+				return 0;
+			guessList.add(letter);
+			return guessChar(letter, word);
+		}
+	}
+
+	public int guessWord(String guess, GallowWord word) {
+		char[] letters = guess.toCharArray();
+		int wordSize = word.getSize();
+
+		int hits = 0;
+		if (letters.length == wordSize) {
+			for (int i = 0; i < wordSize; i++) {
+				if (letters[i] == word.getLetter(i))
+					hits++;
+			}
+		}
+
+		if (hits >= wordSize) {
+			word.hitAll();
+			return 0;
+		}
+
+		return -1;
+	}
+
+	public int guessChar(char guess, GallowWord word) {
+		boolean hit = false;
+
+		for (int i = 0; i < word.getSize(); i++) {
+			if (Character.compare(guess, word.getLetter(i)) == 0) {
+				word.hit(i);
+				hit = true;
+			}
+		}
+
+		if (hit)
+			return 0;
+		else
+			return -1;
+	}
+
 }
 
 class GallowWord {
