@@ -332,6 +332,8 @@ class Controlller {
 		}
 
 		guess = guess.toLowerCase();
+		if (guess.equals("ç"))
+			guess = "c";
 
 		if (guess.isEmpty())
 			return -1;
@@ -451,7 +453,7 @@ class GallowWord {
 class ReadFile {
 	public ReadFile() {
 		super();
-	// TODO Auto-generated constructor stub
+		// TODO Auto-generated constructor stub
 	}
 
 	public String[] readWord() throws RuntimeException, IOException, EmptyFileException {
