@@ -59,13 +59,13 @@ public class Main {
 				System.err.println(e.getMessage());
 			} catch (IOException e) {
 				view.clearScreen();
-				System.err.println("Arquivo " + e.getMessage() + " não Encontrado!");
+				System.err.println("Arquivo " + e.getMessage() + " nao Encontrado!");
 			} catch (RuntimeException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (EmptyFileException e) {
 				view.clearScreen();
-				System.err.println("Arquivo " + e.getMessage() + " está Vazia!");
+				System.err.println("Arquivo " + e.getMessage() + " esta Vazia!");
 			}
 		}
 		terIn.close();
@@ -80,16 +80,16 @@ class View {
 
 	public void printMainMenu() {
 		StringBuilder menu = new StringBuilder();
-		menu.append("\nÓ Fatecanuz proveis para aos sofí que conheceis os Argumentos.");
-		menu.append("\nGita ó Fatecanuz ou pedeceis na FORCA!");
+		menu.append("\no Fatecanuz proveis para aos sofi que conheceis os Argumentos.");
+		menu.append("\nGita o Fatecanuz ou pedeceis na FORCA!");
 
 		menu.append("\n");
-		// Léxi = Palavras
-		// grámatas = letras
-		menu.append("\n 1 - Léxi de grámatas leves");
-		menu.append("\n 2 - Léxi de grámatas medianas");
-		menu.append("\n 3 - Léxi de grámatas pesadas");
-		menu.append("\n 4 - Léxi de grámatas qualquer");
+		// Lexi = Palavras
+		// gramatas = letras
+		menu.append("\n 1 - Lexi de gramatas leves");
+		menu.append("\n 2 - Lexi de gramatas medianas");
+		menu.append("\n 3 - Lexi de gramatas pesadas");
+		menu.append("\n 4 - Lexi de gramatas qualquer");
 		// menu.append("\n 9 - Abandonas este desafio");
 
 		System.out.println(menu.toString());
@@ -207,7 +207,7 @@ class View {
 		text = new StringBuilder();
 
 		text.append("\n");
-		text.append("Provastes tua inocencia perante ").append(godName()).append("!\nOrgulhate ó Fatekanuz!");
+		text.append("Provastes tua inocencia perante ").append(godName()).append("!\nOrgulhate o Fatekanuz!");
 		System.err.println(text.toString());
 
 		// Hold Term
@@ -450,7 +450,8 @@ class GallowWord {
 
 class ReadFile {
 	public ReadFile() {
-		// TODO Auto-generated constructor stub
+		super();
+	// TODO Auto-generated constructor stub
 	}
 
 	public String[] readWord() throws RuntimeException, IOException, EmptyFileException {
@@ -497,7 +498,7 @@ class ReadFile {
 		File file = new File(newDir, filename);
 
 		if (!file.exists())
-			throw new FileNotFoundException("Arquivo " + filename + " não encontrado na pasta " + newDir);
+			throw new FileNotFoundException("Arquivo " + filename + " nao encontrado na pasta " + newDir);
 
 		try {
 			ArrayList<String[]> list = new ArrayList<String[]>();
